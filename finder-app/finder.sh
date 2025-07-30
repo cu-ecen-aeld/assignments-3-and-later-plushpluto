@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Finder script for AESD assignment
 # Author: Assignment Implementation
 
