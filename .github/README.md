@@ -2,25 +2,13 @@
 
 This repository includes automated testing using GitHub Actions workflows.
 
-## Workflows
+## Workflow
 
-### CI Workflow (`.github/workflows/ci.yml`)
+### Assignment Tests Workflow (`.github/workflows/unit-test.yml`)
 - Runs on push and pull requests to main/master branches
-- Uses Ubuntu latest environment
-- Installs build dependencies (cmake, gcc, g++)
-- Builds the project using CMake
-- Runs unit tests and full test suite
-
-### Unit Test Workflow (`.github/workflows/unit-test.yml`)
-- Runs on push and pull requests to main/master branches
-- Includes two jobs:
-  1. **unit-test**: Uses the `cuaesd/aesd-autotest:unit-test` container for consistent testing environment
-  2. **build-test**: Uses Ubuntu latest with manual dependency installation
-
-Both workflows ensure that:
-- All unit tests pass (`./unit-test.sh`)
-- Full test suite passes (`./full-test.sh`)
-- Assignment-specific tests run (if configured in `conf/assignment.txt`)
+- Uses self-hosted runners with `cuaesd/aesd-autotest:unit-test` container
+- Single job that runs both unit tests and full test suite
+- Eliminates duplication by consolidating all testing into one workflow
 
 ## Test Coverage
 
