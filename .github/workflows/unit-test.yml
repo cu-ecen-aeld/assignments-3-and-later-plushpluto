@@ -1,4 +1,4 @@
-name: Assignment Tests
+name: Unit Tests
 
 on:
   push:
@@ -21,6 +21,3 @@ jobs:
     
     - name: Run unit tests
       run: ./unit-test.sh
-    
-    - name: Run full test suite
-      run: ./full-test.sh

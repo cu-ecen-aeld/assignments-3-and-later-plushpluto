@@ -1,6 +1,6 @@
 # aesd-assignments
 
-![Assignment Tests](https://github.com/cu-ecen-aeld/assignments-3-and-later-plushpluto/workflows/Assignment%20Tests/badge.svg)
+![Unit Tests](https://github.com/cu-ecen-aeld/assignments-3-and-later-plushpluto/workflows/Unit%20Tests/badge.svg)
 
 This repo contains public starter source code, scripts, and documentation for Advanced Embedded Software Development (ECEN-5713) and Advanced Embedded Linux Development assignments University of Colorado, Boulder.
 
