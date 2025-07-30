@@ -1,0 +1,59 @@
+name: Assignment Unit Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  unit-test:
+    container: cuaesd/aesd-autotest:unit-test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    
+    - name: Run unit tests
+      run: ./unit-test.sh
+    
+    - name: Run full test suite
+      run: ./full-test.sh
+
+  build-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake gcc g++
+    
+    - name: Build and test
+      run: |
+        mkdir -p build
+        cd build
+        cmake ..
+        make
+        cd ..
+        ./unit-test.sh
+    
+    - name: Run assignment tests
+      run: |
+        if [ -f conf/assignment.txt ]; then
+          assignment=$(cat conf/assignment.txt)
+          if [ -f ./assignment-autotest/test/${assignment}/assignment-test.sh ]; then
+            echo "Running assignment test for ${assignment}"
+            ./assignment-autotest/test/${assignment}/assignment-test.sh $(pwd)
+          else
+            echo "No assignment test found for ${assignment}"
+          fi
+        else
+          echo "No assignment.txt found"
+        fi
