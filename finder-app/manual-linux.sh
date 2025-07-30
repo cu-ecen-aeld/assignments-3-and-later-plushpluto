@@ -43,7 +43,6 @@ if [ ! -e ${OUTDIR}/linux/arch/${ARCH}/boot/Image ]; then
     echo "Checking out version ${KERNEL_VERSION}"
     git checkout ${KERNEL_VERSION}
 
-    # TODO: Add your kernel build steps here
     echo "Building kernel"
     make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} mrproper
     make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} defconfig
@@ -59,10 +58,10 @@ cd "$OUTDIR"
 if [ -d "${OUTDIR}/rootfs" ]
 then
 	echo "Deleting rootfs directory at ${OUTDIR}/rootfs and starting over"
-    sudo rm  -rf ${OUTDIR}/rootfs
+    rm -rf ${OUTDIR}/rootfs
 fi
 
-# TODO: Create necessary base directories
+# Create necessary base directories
 mkdir -p ${OUTDIR}/rootfs
 cd ${OUTDIR}/rootfs
 mkdir -p bin dev etc home lib lib64 proc sbin sys tmp usr var
@@ -72,17 +71,18 @@ mkdir -p var/log
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/busybox" ]
 then
-git clone git://busybox.net/busybox.git
+    echo "Cloning busybox"
+    git clone git://busybox.net/busybox.git
     cd busybox
     git checkout ${BUSYBOX_VERSION}
-    # TODO:  Configure busybox
-    make distclean
-    make defconfig
 else
     cd busybox
+    echo "Busybox directory exists, cleaning and rebuilding"
 fi
 
-# TODO: Make and install busybox
+# Configure and build busybox
+make distclean
+make defconfig
 make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
 make CONFIG_PREFIX=${OUTDIR}/rootfs ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} install
 
@@ -90,7 +90,7 @@ echo "Library dependencies"
 ${CROSS_COMPILE}readelf -a ${OUTDIR}/rootfs/bin/busybox | grep "program interpreter"
 ${CROSS_COMPILE}readelf -a ${OUTDIR}/rootfs/bin/busybox | grep "Shared library"
 
-# TODO: Add library dependencies to rootfs
+# Add library dependencies to rootfs
 SYSROOT=$(${CROSS_COMPILE}gcc -print-sysroot)
 echo "Sysroot: ${SYSROOT}"
 
@@ -102,17 +102,21 @@ cp ${SYSROOT}/lib64/libm.so.6 ${OUTDIR}/rootfs/lib64/
 cp ${SYSROOT}/lib64/libresolv.so.2 ${OUTDIR}/rootfs/lib64/
 cp ${SYSROOT}/lib64/libc.so.6 ${OUTDIR}/rootfs/lib64/
 
-# TODO: Make device nodes
+# Make device nodes (may require root privileges in some environments)
 cd ${OUTDIR}/rootfs
-sudo mknod -m 666 dev/null c 1 3
-sudo mknod -m 666 dev/console c 5 1
+if ! mknod -m 666 dev/null c 1 3 2>/dev/null; then
+    echo "Warning: Could not create /dev/null device node, may need root privileges"
+fi
+if ! mknod -m 666 dev/console c 5 1 2>/dev/null; then
+    echo "Warning: Could not create /dev/console device node, may need root privileges"
+fi
 
-# TODO: Clean and build the writer utility
+# Clean and build the writer utility
 cd ${FINDER_APP_DIR}
 make clean
 make CROSS_COMPILE=${CROSS_COMPILE}
 
-# TODO: Copy the finder related scripts and executables to the /home directory
+# Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
 cp writer ${OUTDIR}/rootfs/home/
 cp writer.sh ${OUTDIR}/rootfs/home/
@@ -134,9 +138,12 @@ chmod +x ${OUTDIR}/rootfs/home/finder.sh
 chmod +x ${OUTDIR}/rootfs/home/finder-test.sh
 chmod +x ${OUTDIR}/rootfs/home/autorun-qemu.sh
 
-# TODO: Chown the root directory
+# Chown the root directory (may require root privileges in some environments)
 cd ${OUTDIR}/rootfs
-sudo chown -R root:root *
+if ! chown -R root:root * 2>/dev/null; then
+    echo "Warning: Could not change ownership to root, may need root privileges"
+    echo "Files will be owned by current user: $(whoami)"
+fi
 
-# TODO: Create initramfs.cpio.gz
+# Create initramfs.cpio.gz
 find . | cpio -o -H newc | gzip > ${OUTDIR}/initramfs.cpio.gz
