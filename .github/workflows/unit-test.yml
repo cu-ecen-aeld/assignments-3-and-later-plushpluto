@@ -16,6 +16,9 @@ jobs:
       with:
         submodules: recursive
     
+    - name: Clean build directory
+      run: rm -rf build
+    
     - name: Run unit tests
       run: ./unit-test.sh
     
@@ -35,14 +38,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake gcc g++
     
-    - name: Build and test
+    - name: Clean and build
       run: |
+        rm -rf build
         mkdir -p build
         cd build
         cmake ..
         make
-        cd ..
-        ./unit-test.sh
+    
+    - name: Run unit tests
+      run: ./unit-test.sh
     
     - name: Run assignment tests
       run: |
