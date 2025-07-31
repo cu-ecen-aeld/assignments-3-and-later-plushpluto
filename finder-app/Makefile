@@ -8,7 +8,7 @@ SOURCES = writer.c
 all: $(TARGET)
 
 $(TARGET): $(SOURCES)
-	$(CROSS_COMPILE)$(CC) $(CFLAGS) -o $(TARGET) $(SOURCES)
+	$(CROSS_COMPILE)gcc $(CFLAGS) -o $(TARGET) $(SOURCES)
 
 clean:
 	rm -f $(TARGET)
